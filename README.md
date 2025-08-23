@@ -18,19 +18,6 @@ This backend follows the **Repository Design Pattern** to ensure a clear separat
 
 ---
 
-## Folder Structure
-
-src/
-├── Controllers/ # Express.js routers handling API endpoints
-├── Services/ # Business logic and data flow orchestration
-├── Repository/
-│ ├── Contracts/ # Repository interfaces (e.g., TaskInterface.ts)
-│ └── MongoDB/ # Concrete implementations using Mongoose
-├── Models/ # Mongoose schemas (Task.ts, Project.ts, etc.)
-└── types/ # TypeScript DTOs and shared type definitions
-
----
-
 ## Key Technologies
 
 - **TypeScript** – Full static typing for improved reliability and maintainability.  

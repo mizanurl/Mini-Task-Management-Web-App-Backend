@@ -40,4 +40,14 @@ export class UserDatabase implements UserInterface {
     public async updateRole(id: string, newRole: 'Admin' | 'Manager' | 'Member'): Promise<UserModel | null> {
         return User.findByIdAndUpdate(id, { role: newRole }, { new: true });
     }
+
+    /**
+     * Find all users, optionally filtered by role.
+     * @param role - The role to filter users by (optional).
+     * @returns An array of users matching the filter.
+     */
+    public async findAll(role?: 'Admin' | 'Manager' | 'Member'): Promise<UserModel[]> {
+        const filter = role ? { role } : {};
+        return User.find(filter).select('-password'); // Exclude passwords from the response
+    }
 }

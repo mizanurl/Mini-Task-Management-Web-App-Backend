@@ -1,4 +1,5 @@
 import { AuditLogDatabase } from '../Repository/MongoDB/AuditLogDatabase';
+import { AuditLogModel } from '../Models/AuditLog';
 
 // Dependency injection of the repository.
 const auditLogRepository = new AuditLogDatabase();
@@ -29,5 +30,13 @@ export class AuditLogService {
         } catch (error) {
             console.error('Failed to create audit log:', error);
         }
+    }
+
+    /**
+     * Get all audit logs.
+     * @returns An array of audit log entries.
+     */
+    public async getAllLogs(): Promise<AuditLogModel[]> {
+        return auditLogRepository.findAll();
     }
 }

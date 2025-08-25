@@ -12,4 +12,12 @@ export class AuditLogDatabase implements AuditLogInterface {
         const newLog = new AuditLog(log);
         return newLog.save();
     }
+
+    /**
+     * Find all audit log entries.
+     * @returns An array of all audit log entries.
+     */
+    public async findAll(): Promise<AuditLogModel[]> {
+        return AuditLog.find().sort({ timestamp: -1 }); // Sort by newest first
+    }
 }

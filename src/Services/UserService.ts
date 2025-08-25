@@ -90,4 +90,19 @@ export class UserService {
         }
         return updatedUser;
     }
+
+    /**
+     * Gets a list of all users based on the requestor's role.
+     * @param requestorRole The role of the user making the request.
+     * @returns A list of users.
+     */
+    public async getAllUsers(requestorRole: 'Admin' | 'Manager' | 'Member'): Promise<UserModel[]> {
+        if (requestorRole === 'Admin') {
+            return userRepository.findAll(); // Admin gets all users
+        } else if (requestorRole === 'Manager') {
+            return userRepository.findAll('Member'); // Manager gets only Members
+        } else {
+            return []; // Members get an empty list (Forbidden)
+        }
+    }
 }

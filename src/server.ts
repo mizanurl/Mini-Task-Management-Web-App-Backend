@@ -6,10 +6,11 @@ import http from 'http';
 import { Server as SocketIOServer } from 'socket.io';
 import { connectToDatabase } from './database';
 import { setupSwagger } from './swagger'; // Import the Swagger setup
+
+import { AuditLogRouter } from './Controllers/AuditLogController'; // Import the AuditLog Router
 import { UserRouter } from './Controllers/UserController'; // Import the User Router
 import { ProjectRouter } from './Controllers/ProjectController'; // Import the Project Router
 import { TaskRouter } from './Controllers/TaskController'; // Import the Task Router
-import authMiddleware from './Middleware/AuthMiddleware'; // Import authMiddleware
 
 dotenv.config();
 
@@ -32,6 +33,7 @@ app.use(express.json());
 setupSwagger(app);
 
 // Use the routers for your API endpoints.
+app.use('/api/auditlogs', AuditLogRouter());
 app.use('/api/users', UserRouter(io));
 app.use('/api/projects', ProjectRouter(io));
 app.use('/api/tasks', TaskRouter(io));

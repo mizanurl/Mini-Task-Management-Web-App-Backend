@@ -131,6 +131,41 @@ export const UserRouter = (io: SocketIOServer) => {
 
     /**
      * @swagger
+     * /api/users:
+     *   get:
+     *     summary: Get all users (Admin) or all members (Manager)
+     *     tags: [Users]
+     *     security:
+     *       - bearerAuth: []
+     *     responses:
+     *       200:
+     *         description: A list of users based on role
+     *         content:
+     *           application/json:
+     *             schema:
+     *               type: array
+     *               items:
+     *                 $ref: '#/components/schemas/User'
+     *       403:
+     *         description: Forbidden, user is not authorized
+     *       500:
+     *         description: Server error
+     */
+    router.get('/', authMiddleware, async (req: Request, res: Response) => {
+        try {
+            if (req.user?.role === 'Member') {
+                return res.status(403).json({ message: 'Forbidden: You do not have access to this resource.' });
+            }
+            const users = await userService.getAllUsers(req.user!.role);
+            res.json(users);
+        } catch (error) {
+            console.error('Failed to get all users:', error);
+            res.status(500).json({ message: 'Server error' });
+        }
+    });
+
+    /**
+     * @swagger
      * /api/users/role:
      *   put:
      *     summary: Change a user's role dynamically (Admin only)

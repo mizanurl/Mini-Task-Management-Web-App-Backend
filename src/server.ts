@@ -12,6 +12,8 @@ import { UserRouter } from './Controllers/UserController'; // Import the User Ro
 import { ProjectRouter } from './Controllers/ProjectController'; // Import the Project Router
 import { TaskRouter } from './Controllers/TaskController'; // Import the Task Router
 
+import { User } from './types/user';
+
 dotenv.config();
 
 const app = express();
@@ -24,6 +26,10 @@ const io = new SocketIOServer(server, {
 });
 
 const PORT = process.env.PORT || 3000;
+
+// A Map to store online users by their ID and socket ID.
+const onlineUsers = new Map<string, User>();
+const userIdToSocketId = new Map<string, string>();
 
 // Middleware setup.
 app.use(cors());
@@ -45,17 +51,34 @@ const startServer = async () => {
     try {
         await connectToDatabase();
         
+        // This is the core logic for user presence
         io.on('connection', (socket) => {
             console.log('A user connected:', socket.id);
 
-            // When a client connects, we need to associate their socket with their user ID.
-            socket.on('joinRoom', (userId: string) => {
-                socket.join(userId);
-                console.log(`User ${userId} joined their personal room.`);
+            socket.on('userOnline', (user: User) => {
+                (socket as any).userId = user.id;
+                onlineUsers.set(user.id, user);
+                userIdToSocketId.set(user.id, socket.id);
+                io.emit('userList', Array.from(onlineUsers.values()));
+                console.log(`User ${user.username} is now online. Total: ${onlineUsers.size}`);
             });
-            
+
+            socket.on('userOffline', (userId: string) => {
+                onlineUsers.delete(userId);
+                userIdToSocketId.delete(userId);
+                io.emit('userList', Array.from(onlineUsers.values()));
+                console.log(`User ${userId} is now offline. Total: ${onlineUsers.size}`);
+            });
+
             socket.on('disconnect', () => {
                 console.log('User disconnected:', socket.id);
+                const userId = (socket as any).userId;
+                if (userId) {
+                    onlineUsers.delete(userId);
+                    userIdToSocketId.delete(userId);
+                    io.emit('userList', Array.from(onlineUsers.values()));
+                    console.log(`User ${userId} disconnected. Total: ${onlineUsers.size}`);
+                }
             });
         });
 
